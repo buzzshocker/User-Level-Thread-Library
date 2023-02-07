@@ -42,7 +42,6 @@ queue_t queue_create(void) {
     queue -> front = NULL;
     queue -> rear = NULL;
     return queue;
-
 }
 
 int queue_destroy(queue_t queue) {
