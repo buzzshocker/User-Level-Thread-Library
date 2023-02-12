@@ -9,7 +9,7 @@
 #include "private.h"
 #include "uthread.h"
 #include "queue.h"
-#include "preempt.c"
+//#include "preempt.c"
 #include "context.c"
 
 
@@ -21,12 +21,13 @@ struct uthread_tcb *next_thread;
 struct uthread_tcb
 {
     /* TODO Phase 2 */
-    enum status {
-        blocked = 0,
-        ready = 1,
-        running = 2,
-        done = 3
-    }  state;
+//    enum status {
+//        blocked = 0,
+//        ready = 1,
+//        running = 2,
+//        done = 3
+//    }  state;
+    int state;
     uthread_ctx_t *uctx;
     void *top_of_stack;
 };
@@ -47,9 +48,7 @@ void uthread_yield(void)
     struct uthread_tcb *temp = current_thread;
     current_thread = next_thread;
     current_thread -> state = 2;
-//    printf("enter ctxt switch1\n");
     uthread_ctx_switch(temp->uctx, next_thread->uctx);
-//    printf("exit ctxt switch1\n");
 }
 
 void uthread_exit(void)
@@ -59,11 +58,9 @@ void uthread_exit(void)
     current_thread -> state = 3;
     next_thread -> state = 2;
     struct uthread_tcb* temp = current_thread;
-    queue_enqueue(exited_thread_queue, current_thread); // chng status to done; if i hav an exit queue, put it in there; yield
     current_thread = next_thread;
-    printf("enter ctxt switch2\n");
+    queue_enqueue(exited_thread_queue, temp);
     uthread_ctx_switch(temp -> uctx, current_thread -> uctx);
-    printf("exit ctxt switch2\n");
 }
 
 int uthread_create(uthread_func_t func, void *arg)
@@ -74,7 +71,7 @@ int uthread_create(uthread_func_t func, void *arg)
     t1->top_of_stack = uthread_ctx_alloc_stack();
     uthread_ctx_init(t1->uctx, t1->top_of_stack, func, arg);
     next_thread = t1;
-    queue_enqueue(thread_queue, &t1);
+    queue_enqueue(thread_queue, t1);
     return 0;
 }
 
@@ -86,11 +83,8 @@ int uthread_run(bool preempt, uthread_func_t func, void *arg)
     main_thread->uctx = (uthread_ctx_t*) malloc(sizeof(uthread_ctx_t));
     main_thread->top_of_stack = uthread_ctx_alloc_stack();
     main_thread -> state = 1; // change to enums
-    printf("enter\n");
     thread_queue = queue_create();
-    printf("exit\n");
     exited_thread_queue = queue_create();
-    printf("exit\n");
     current_thread = main_thread;
     uthread_create(func, arg);
     while (1)
@@ -118,18 +112,4 @@ int uthread_run(bool preempt, uthread_func_t func, void *arg)
 //void uthread_unblock(struct uthread_tcb *uthread)
 //{
 //    /* TODO Phase 3 */
-//}
-
-
-//void hello(void *arg)
-//{
-//    (void)arg;
-//
-//    printf("Hello world!\n");
-//}
-//
-//int main(void)
-//{
-//    uthread_run(false, hello, NULL);
-//    return 0;
 //}
