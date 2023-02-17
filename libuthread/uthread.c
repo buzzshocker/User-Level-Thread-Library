@@ -33,13 +33,10 @@ struct uthread_tcb *uthread_current(void)
 void uthread_yield(void)
 {
     /* TODO Phase 2 */
-    current_thread -> state = 1;
     queue_enqueue(thread_queue, current_thread);
     queue_dequeue(thread_queue, (void** )&next_thread);
-    next_thread -> state = 2;
     struct uthread_tcb *temp = current_thread;
     current_thread = next_thread;
-    current_thread -> state = 2;
     uthread_ctx_switch(temp->uctx, next_thread->uctx);
 }
 
@@ -47,8 +44,6 @@ void uthread_exit(void)
 {
     /* TODO Phase 2 */
     queue_dequeue(thread_queue, (void** )&next_thread);
-    current_thread -> state = 3;
-    next_thread -> state = 2;
     struct uthread_tcb* temp = current_thread;
     current_thread = next_thread;
     queue_enqueue(exited_thread_queue, temp);
@@ -71,11 +66,11 @@ int uthread_create(uthread_func_t func, void *arg)
 int uthread_run(bool preempt, uthread_func_t func, void *arg)
 {
     /* TODO Phase 2 */
+    preempt_start(preempt);
     struct uthread_tcb* main_thread;
     main_thread = (struct uthread_tcb *)malloc(sizeof(struct uthread_tcb));
     main_thread->uctx = (uthread_ctx_t*) malloc(sizeof(uthread_ctx_t));
     main_thread->top_of_stack = uthread_ctx_alloc_stack();
-    main_thread -> state = 1; // change to enums
     thread_queue = queue_create();
     exited_thread_queue = queue_create();
     current_thread = main_thread;
@@ -89,10 +84,8 @@ int uthread_run(bool preempt, uthread_func_t func, void *arg)
             break;
         }
     }
-
-    if (preempt == true)
-    {
-        preempt_enable();
+    if (preempt == true) {
+        preempt_stop();
     }
     return 0;
 }
