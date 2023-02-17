@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "queue.h"
+#include "private.h"
 
 // Custom struct to be the node of the linked list for the queue
 struct node {
@@ -37,11 +38,11 @@ struct queue {
 queue_t queue_create(void) {
 	/* TODO Phase 1 */
     // Assign the space to the queue
-    queue_t queue = (queue_t) malloc(sizeof(queue));
+    queue_t q = (struct queue*) malloc(sizeof(struct queue));
     // Initialise the front and the rear of the queue
-    queue -> front = NULL;
-    queue -> rear = NULL;
-    return queue;
+    q -> front = NULL;
+    q -> rear = NULL;
+    return q;
 }
 
 int queue_destroy(queue_t queue) {
@@ -54,6 +55,7 @@ int queue_destroy(queue_t queue) {
     queue -> front = NULL;
     queue -> rear = NULL;
     free(queue);
+    queue = NULL;
     return 0;
 }
 
@@ -93,7 +95,7 @@ int queue_dequeue(queue_t queue, void **data)
     // Assign the data that was dequeued to the data variable passed in
     *data = queue -> front -> data;
     // Store the current front value in a temporary node variable
-    q_node dq_node = queue -> front;
+    //q_node dq_node = queue -> front;
     // Assign the front to be the next value of the front
     queue -> front = queue -> front -> next;
     // Decrement the queue size counter since element removed
@@ -103,7 +105,7 @@ int queue_dequeue(queue_t queue, void **data)
         queue -> front = queue -> rear = NULL;
     }
     // Free the space assigned for the dq_node
-    free(dq_node);
+    //free(dq_node);
     return 0;
 }
 
