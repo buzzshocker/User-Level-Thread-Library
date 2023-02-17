@@ -6,12 +6,10 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-#include "private.h"
-#include "uthread.h"
-#include "queue.h"
-//#include "preempt.c"
 #include "context.c"
-
+#include "private.h"
+#include "queue.h"
+#include "uthread.h"
 
 queue_t thread_queue;
 queue_t exited_thread_queue;
@@ -21,12 +19,6 @@ struct uthread_tcb *next_thread;
 struct uthread_tcb
 {
     /* TODO Phase 2 */
-//    enum status {
-//        blocked = 0,
-//        ready = 1,
-//        running = 2,
-//        done = 3
-//    }  state;
     int state;
     uthread_ctx_t *uctx;
     void *top_of_stack;
@@ -66,7 +58,8 @@ void uthread_exit(void)
 int uthread_create(uthread_func_t func, void *arg)
 {
     /* TODO Phase 2 */
-    struct uthread_tcb *t1 = (struct uthread_tcb *)malloc(sizeof(struct uthread_tcb));
+    struct uthread_tcb *t1 = (struct uthread_tcb *)malloc
+            (sizeof(struct uthread_tcb));
     t1->uctx = (uthread_ctx_t*) malloc(sizeof(uthread_ctx_t));
     t1->top_of_stack = uthread_ctx_alloc_stack();
     uthread_ctx_init(t1->uctx, t1->top_of_stack, func, arg);
@@ -103,13 +96,22 @@ int uthread_run(bool preempt, uthread_func_t func, void *arg)
     }
     return 0;
 }
-//
-//void uthread_block(void)
-//{
-//    /* TODO Phase 3 */
-//}
 
-//void uthread_unblock(struct uthread_tcb *uthread)
-//{
-//    /* TODO Phase 3 */
-//}
+void uthread_block(void)
+{
+    /* TODO Phase 3 */
+    struct uthread_tcb* dq_thread;
+    queue_dequeue(thread_queue, (void** )&dq_thread);
+    struct uthread_tcb* curr_thread;
+    curr_thread = current_thread;
+    current_thread = dq_thread;
+    uthread_ctx_switch(curr_thread -> uctx, dq_thread -> uctx);
+}
+
+
+void uthread_unblock(struct uthread_tcb *uthread)
+{
+    /* TODO Phase 3 */
+    queue_enqueue(thread_queue, uthread);
+}
+
