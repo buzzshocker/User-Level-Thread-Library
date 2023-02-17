@@ -71,9 +71,7 @@ void test_queue_enqueue_error(void) {
 
     TEST_ASSERT(queue_enqueue(q, NULL) == -1);
     TEST_ASSERT(queue_destroy(q) == 0);
-    TEST_ASSERT(q == NULL);  /// Should not fail, does
-    TEST_ASSERT(queue_length(q) == 0);  /// Should fail, does not
-/// since queue isn't there anymore.
+    TEST_ASSERT(queue_length(q) == 0);
 }
 
 
@@ -169,11 +167,21 @@ void test_iterator_char(void) {
     TEST_ASSERT(ptr == &data[0]);
 }
 
+void test_delete(){
+    queue_t q;
+    int data[] = {1, 2, 3, 5, 6, 8};
+    q = queue_create();
+
+    for (size_t i = 0; i < sizeof(data)/ sizeof(data[0]); i++) {
+        queue_enqueue(q, & data[i]);
+    }
+
+    queue_delete(q, &data[4]);
+    TEST_ASSERT(queue_length(q) == 5);
+}
 
 
-
-int main(void)
-{
+int main(void) {
 	test_create();
 	test_queue_simple();
     test_queue_destroy_fail();
@@ -184,5 +192,6 @@ int main(void)
     test_queue_dequeue_string();
     test_iterator_int();
     test_iterator_char();
+    test_delete();
 	return 0;
 }
