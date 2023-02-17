@@ -25,10 +25,10 @@ void preempt_enable(void)
 	/* TODO Phase 4 */
 }
 
-void preempt_start(bool preempt)
-{
-	/* TODO Phase 4 */
-}
+// void preempt_start(bool preempt)
+// {
+// 	/* TODO Phase 4 */
+// }
 
 void preempt_stop(void)
 {
