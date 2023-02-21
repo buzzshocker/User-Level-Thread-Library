@@ -3,7 +3,6 @@ lib := libuthread.a
 objs    := queue.o uthread.o preempt.o sem.o
 CC      := gcc
 CFLAGS  := -Wall -Wextra -Werror -MMD
-## CFLAGS  += -g
 
 ifneq ($(V),1)
 Q = @
