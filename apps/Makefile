@@ -33,8 +33,6 @@ CFLAGS	+= -pipe
 ## Debug flag
 ifneq ($(D),1)
 CFLAGS	+= -O2
-else
-CFLAGS	+= -g
 endif
 ## Include path
 CFLAGS 	+= -I$(UTHREADPATH)
