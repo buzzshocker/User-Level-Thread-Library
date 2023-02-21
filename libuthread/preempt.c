@@ -19,6 +19,7 @@ struct sigaction new_action, old_action;
 struct itimerval new_timer, old_timer;
 int signum;
 sigset_t block_set;
+int preempt_allowed;
 
 void signal_handler(int signum) {
     // Signal handler calls uthread_yield if SIGVTALRM is raised
@@ -30,6 +31,10 @@ void signal_handler(int signum) {
 void preempt_disable(void)
 {
 	/* TODO Phase 4 */
+    // If allowed is 1, then don't let disable run
+    if (preempt_allowed == 1) {
+        return;
+    }
     // Block SIGVTALRM signals if preempt_disable is called
     sigemptyset(&block_set);
     sigaddset(&block_set, SIGVTALRM);
@@ -39,6 +44,10 @@ void preempt_disable(void)
 void preempt_enable(void)
 {
 	/* TODO Phase 4 */
+    // If allowed is 1, then don't let enable run
+    if (preempt_allowed == 1) {
+        return;
+    }
     // Unblocks any previously blocked signals - SIGVTALRM for us
     sigprocmask(SIG_UNBLOCK, &block_set, NULL);
 }
@@ -53,10 +62,13 @@ void preempt_start(bool preempt)
 
     // Sets timer values
     new_timer.it_value.tv_sec = 1/HZ;  // Converts HZ to seconds
-    new_timer.it_value.tv_usec = (1000*HZ)%1000000;  // Converts HZ to milliseconds
+    // Converts HZ to milliseconds
+    new_timer.it_value.tv_usec = (1000*HZ)%1000000;
     new_timer.it_interval = new_timer.it_value;
 
     if (preempt == true) {
+        // To stop enable and disable from working
+        preempt_allowed = 1;
         // Raise errors if sigaction fails, otherwise fire SIGVTALRM that
         // the signal handler will take care of
         if (sigaction(SIGVTALRM, &new_action, &old_action) == -1) {
@@ -72,6 +84,8 @@ void preempt_start(bool preempt)
 void preempt_stop(void)
 {
 	/* TODO Phase 4 */
+    // To allow enable and disable to work again
+    preempt_allowed = 0;
     // Revert action and timer back to the previous thread that we switched
     // from when preempt start was called
     sigaction(SIGVTALRM, &old_action, &new_action);
