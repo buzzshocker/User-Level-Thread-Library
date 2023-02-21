@@ -62,8 +62,8 @@ simpler once we understood what the semaphore is actually supposed to do.
 Firstly, we finish our `uthread` implementation by finally adding the last two 
 functions - `uthread_block` and `uthread_unblock`. 
 
-- `uthread_block` is supposed to block the currently running thread. For this, we 
-`queue_dequeue` the first ready thread from the `thread_queue`. That dequeued 
+- `uthread_block` is supposed to block the currently running thread. For this, 
+we `queue_dequeue` the first ready thread from the `thread_queue`. That dequeued 
 thread will now become the current thread. Before that, we store the current 
 thread so that we can context switch from that `current_thread` to the earlier
 dequeued thread. This blocks the execution of that thread and allows the next 
