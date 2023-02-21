@@ -136,6 +136,8 @@ but used for the `setitimer` syscall.
 - `signum`: For the value to be passed to the signal handler.
 - `sigset_t blocked_set`: `sigset` type set for storing the signals that have 
 been blocked. 
+- `int preempt_allowed`: int to make sure disable or enable don't run when 
+they shouldn't
 
 We also have a signal handler that will be called when `preempt_start` is 
 called with the argument `true`. This just calls `uthread_yield` using 
@@ -152,6 +154,10 @@ called.
 
 Lastly, `disable` and `enable` are very straightforward where `disable` just 
 blocks the `SIGVTALRM` signal, while `enable` just unblocks the signal. 
+However, if `preempt_allowed == 1`, then don't let either of the two run. 
+If it is 1, then that means we are in a critical section and we can't let
+another thread interfer with the current libraries and data structures. 
+Thus, if it is 1, then don't allow either of these to run.
 
 For `test_preempt.c`, we had a simple tester which runs two threads concurrently
 where one of them is an infinite thread and the other is a thread that kills 
