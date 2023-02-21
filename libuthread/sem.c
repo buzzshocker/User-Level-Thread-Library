@@ -1,18 +1,17 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include "private.h"
 #include "queue.h"
 #include "sem.h"
-#include "private.h"
 
+// Struct for semaphore
 struct semaphore {
 	/* TODO Phase 3 */
-    // Struct for semaphore
-    // Count member to allocate the semaphore resources
-    // This is the number of threads that can be run at the same time
-    size_t count;
     // Queue to hold the threads that have been blocked
     queue_t blocked_queue;
+    // Count member to allocate the semaphore resources
+    size_t count;
 };
 
 sem_t sem_create(size_t count) {
@@ -56,19 +55,17 @@ int sem_down(sem_t sem)
     if (sem == NULL) {
         return -1;
     }
-    // If the queue is greater than 0 then take away the resource (decrement)
-    // and give it to a thread so that it can run.
+    // Decrement resources if they are still available
     if (sem -> count > 0) {
         sem -> count--;
-    } else {  // If there are no resources that can be assigned (count == 0)
-        // Take the current thread and insert it into the blocked queue
-        // Since there are no resources that are available, we can't let the
-        // thread run. As a result it gets blocked and we insert it into
-        // the blocked queue. We call uthread_block which actually
-        // blocks the thread.
-        struct uthread_tcb* eq_thread = uthread_current();
-        queue_enqueue(sem -> blocked_queue, eq_thread);
+    } else {
+        // Block the current thread from running
         uthread_block();
+        // If no resources available
+        struct uthread_tcb* eq_thread = uthread_current();
+        // Add the current thread to the blocked queue
+        queue_enqueue(sem -> blocked_queue, eq_thread);
+
     }
     return 0;
 }
@@ -80,21 +77,17 @@ int sem_up(sem_t sem)
     if (sem == NULL) {
         return -1;
     }
-    // Create a uthread_tcb* object that will hold the value that is dequeued
-    // from the blocked thread
+    // Variable to hold the node to be dequeued
     struct uthread_tcb* dq_node;
     // If there is something in the blocked queue and resources are available
     if (queue_length(sem -> blocked_queue) != 0) {
-        // Dequeue from the blocked queue and unblock that thread.
-        // Since now we have resources available, we can allow the first thread
-        // in the blocked thread. The uthread_unblock unblocks it and allows it
-        // run by switching the context to the dq'ed thread
+        // Dequeue the thread from the blocked queue
         queue_dequeue(sem -> blocked_queue, (void**)&dq_node);
+        // unblock the thread and let it run
         uthread_unblock(dq_node);
     } else {
-        // Otherwise if the blocked thread is empty, you can make more
-        // resources (increment count) available so that the other threads
-        // can be run
+        // If the queue is empty, then make the resources available for other
+        // threads to use in the future
         sem -> count++;
     }
     return 0;
