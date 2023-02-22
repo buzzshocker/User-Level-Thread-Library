@@ -70,7 +70,8 @@ void uthread_exit(void)
 
 int uthread_create(uthread_func_t func, void *arg)
 {
-    /* TODO Phase 2 */
+    /* disable preemption as we enter critical section*/
+    preempt_disable();
     /* create a new thread t1 and allocate space */
     struct uthread_tcb *t1 = (struct uthread_tcb *)malloc(sizeof(struct uthread_tcb));
     /* allocate space for t1's thread context */
@@ -81,6 +82,8 @@ int uthread_create(uthread_func_t func, void *arg)
     uthread_ctx_init(t1->uctx, t1->top_of_stack, func, arg);
     /* making t1 to be the next_thread and enqueuing it
     into the thread queue*/
+    /* enable preemption as we are done with critical section */
+    preempt_enable();
     next_thread = t1;
     queue_enqueue(thread_queue, t1);
     return 0;
@@ -92,6 +95,7 @@ int uthread_run(bool preempt, uthread_func_t func, void *arg)
     preempt_start(preempt);
     /* declaring the first TCB obj -> main_thread */
     struct uthread_tcb *main_thread;
+    preempt_disable();
     /* allocating space for the main_thread */
     main_thread = (struct uthread_tcb *)malloc(sizeof(struct uthread_tcb));
     /* allocate space for main_thread's thread context */
@@ -102,6 +106,7 @@ int uthread_run(bool preempt, uthread_func_t func, void *arg)
     exited_thread_queue */
     thread_queue = queue_create();
     exited_thread_queue = queue_create();
+    preempt_enable();
     /* main_thread is the currently running thread */
     current_thread = main_thread;
     uthread_create(func, arg);
