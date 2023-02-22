@@ -1,8 +1,7 @@
-#include <private.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <uthread.h>
-#include <signal.h>
 
 int inf_val = 0;
 
@@ -20,7 +19,7 @@ void preempt_thread(void* arg) {
     uthread_create(exit_thread, arg);
     printf("Now we start the infinite loop that increments and decrements "
            "a global value - inf_value.\n");
-    while(inf_val >= 0) {
+    while (inf_val >= 0) {
         inf_val++;
         inf_val--;
     }
