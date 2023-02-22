@@ -27,7 +27,6 @@ q_node new_node(void* key) {
 }
 
 struct queue {
-	/* TODO Phase 1 */
     // Front and rear pointers of the linked list
     q_node front;
     q_node rear;
@@ -36,7 +35,6 @@ struct queue {
 };
 
 queue_t queue_create(void) {
-	/* TODO Phase 1 */
     // Assign the space to the queue
     queue_t q = (struct queue*) malloc(sizeof(struct queue));
     // Initialise the front and the rear of the queue
@@ -46,7 +44,6 @@ queue_t queue_create(void) {
 }
 
 int queue_destroy(queue_t queue) {
-	/* TODO Phase 1 */
     // Error checks if queue is NULL or is empty
     if (queue == NULL || queue -> count != 0) {
         return -1;
@@ -59,9 +56,7 @@ int queue_destroy(queue_t queue) {
     return 0;
 }
 
-int queue_enqueue(queue_t queue, void *data)
-{
-	/* TODO Phase 1 */
+int queue_enqueue(queue_t queue, void *data) {
     // Error checks
     if (queue == NULL || data == NULL) {
         return -1;
@@ -85,17 +80,13 @@ int queue_enqueue(queue_t queue, void *data)
     return 0;
 }
 
-int queue_dequeue(queue_t queue, void **data)
-{
-	/* TODO Phase 1 */
+int queue_dequeue(queue_t queue, void **data) {
     // Error checks
     if (queue -> count == 0 || queue == NULL || data == NULL) {
         return -1;
     }
     // Assign the data that was dequeued to the data variable passed in
     *data = queue -> front -> data;
-    // Store the current front value in a temporary node variable
-    //q_node dq_node = queue -> front;
     // Assign the front to be the next value of the front
     queue -> front = queue -> front -> next;
     // Decrement the queue size counter since element removed
@@ -104,14 +95,10 @@ int queue_dequeue(queue_t queue, void **data)
     if (queue -> count == 0) {
         queue -> front = queue -> rear = NULL;
     }
-    // Free the space assigned for the dq_node
-    //free(dq_node);
     return 0;
 }
 
-int queue_delete(queue_t queue, void *data)
-{
-	/* TODO Phase 1 */
+int queue_delete(queue_t queue, void *data) {
     // Error checks
     if (queue == NULL || data == NULL) {
         return -1;
@@ -127,6 +114,20 @@ int queue_delete(queue_t queue, void *data)
         free(del_node);
         // Decrement queue count and return
         queue -> count--;
+        return 0;
+    } else if (queue -> rear -> data == data) {  // If data is at the end
+        // Iterate through till we find the next to last node
+        while (del_node -> next -> next != NULL) {
+            del_node = del_node -> next;
+        }
+        // Once we do, make that node the rear and the next node NULL
+        support_node = queue -> rear;
+        queue -> rear = del_node;
+        del_node -> next = NULL;
+        // Decrement count
+        queue -> count--;
+        // Free the previously rear node
+        free(support_node);
         return 0;
     } else {
         // Loop through the queue
@@ -151,9 +152,7 @@ int queue_delete(queue_t queue, void *data)
     return -1;
 }
 
-int queue_iterate(queue_t queue, queue_func_t func)
-{
-	/* TODO Phase 1 */
+int queue_iterate(queue_t queue, queue_func_t func) {
     // Error checks
     if (queue == NULL || func == NULL) {
         return -1;
@@ -168,9 +167,7 @@ int queue_iterate(queue_t queue, queue_func_t func)
     return 0;
 }
 
-int queue_length(queue_t queue)
-{
-	/* TODO Phase 1 */
+int queue_length(queue_t queue) {
     // Error checks
     if (queue == NULL) {
         return -1;
