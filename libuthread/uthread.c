@@ -35,26 +35,26 @@ void uthread_yield(void) {
     // Then pop the next thread from the queue for context switching
     queue_dequeue(thread_queue, (void **)&next_thread);
     // Creating a temporary TCB that has a copy of the current thread
-    struct uthread_tcb *temp = current_thread;
+    struct uthread_tcb *curr_node = current_thread;
     // Changing the current thread to be the next thread for the subsequent
     // processes
     current_thread = next_thread;
     // Context switch between currently running thread and the next thread
-    uthread_ctx_switch(temp->uctx, next_thread->uctx);
+    uthread_ctx_switch(curr_node->uctx, next_thread->uctx);
 }
 
 void uthread_exit(void) {
     // Pop the next thread from the thread_queue
     queue_dequeue(thread_queue, (void **)&next_thread);
     // Creating a temporary TCB that has a copy of the current thread
-    struct uthread_tcb *temp = current_thread;
+    struct uthread_tcb *dq_node = current_thread;
     // Next thread will become the running thread
     current_thread = next_thread;
     // Enqueue the currently running thread into the exited_thread_queue to stop
     // thread execution
-    queue_enqueue(exited_thread_queue, temp);
+    queue_enqueue(exited_thread_queue, dq_node);
     // Context switch between currently running thread and the next thread
-    uthread_ctx_switch(temp->uctx, current_thread->uctx);
+    uthread_ctx_switch(dq_node->uctx, current_thread->uctx);
 }
 
 int uthread_create(uthread_func_t func, void *arg) {
