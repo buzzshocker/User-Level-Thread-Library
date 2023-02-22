@@ -20,7 +20,6 @@ struct uthread_tcb* current_thread;
 struct uthread_tcb* next_thread;
 
 struct uthread_tcb {
-    // Keeps track of the whether the process is running, blocked or ready
     uthread_ctx_t* uctx;
     void* top_of_stack;
 };
