@@ -15,11 +15,12 @@
  */
 #define HZ 100
 
-struct sigaction new_action, old_action;
-struct itimerval new_timer, old_timer;
-int signum;
-sigset_t block_set;
-int preempt_allowed;
+// Global variables to help with functionalities of different functions
+struct sigaction new_action, old_action;  // For sigaction
+struct itimerval new_timer, old_timer;  // For setitimer
+int signum;  // For signal handler
+sigset_t block_set;  // For sigprocmask
+int preempt_allowed;  // For enable and disable
 
 void signal_handler(int signum) {
     // Signal handler calls uthread_yield if SIGVTALRM is raised
@@ -28,9 +29,7 @@ void signal_handler(int signum) {
     }
 }
 
-void preempt_disable(void)
-{
-	/* TODO Phase 4 */
+void preempt_disable(void) {
     // If allowed is 1, then don't let disable run
     if (preempt_allowed == 1) {
         return;
@@ -41,9 +40,7 @@ void preempt_disable(void)
     sigprocmask(SIG_BLOCK, &block_set, NULL);
 }
 
-void preempt_enable(void)
-{
-	/* TODO Phase 4 */
+void preempt_enable(void) {
     // If allowed is 1, then don't let enable run
     if (preempt_allowed == 1) {
         return;
@@ -52,9 +49,7 @@ void preempt_enable(void)
     sigprocmask(SIG_UNBLOCK, &block_set, NULL);
 }
 
-void preempt_start(bool preempt)
-{
-	/* TODO Phase 4 */
+void preempt_start(bool preempt) {
     // Assigns the new action to perform when preempt_start is called
     new_action.sa_handler = signal_handler;
     sigemptyset(&new_action.sa_mask);
@@ -81,9 +76,7 @@ void preempt_start(bool preempt)
     }
 }
 
-void preempt_stop(void)
-{
-	/* TODO Phase 4 */
+void preempt_stop(void) {
     // To allow enable and disable to work again
     preempt_allowed = 0;
     // Revert action and timer back to the previous thread that we switched
