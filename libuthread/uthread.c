@@ -20,6 +20,7 @@ struct uthread_tcb* current_thread;
 struct uthread_tcb* next_thread;
 
 struct uthread_tcb {
+    // Keeps track of the whether the process is running, blocked or ready
     uthread_ctx_t* uctx;
     void* top_of_stack;
 };
@@ -70,12 +71,26 @@ int uthread_create(uthread_func_t func, void *arg) {
     // Create a new thread t1 and allocate space
     struct uthread_tcb *t1 = (struct uthread_tcb *)malloc
             (sizeof(struct uthread_tcb));
+    // Error check for malloc
+    if (t1 == NULL) {
+        return -1;
+    }
     // Allocate space for t1's thread context
     t1->uctx = (uthread_ctx_t *)malloc(sizeof(uthread_ctx_t));
+    // Error check for memory allocation
+    if (t1 -> uctx == NULL) {
+        return -1;
+    }
     // Allocate the stack segment for t1
     t1->top_of_stack = uthread_ctx_alloc_stack();
-    // Initialize t1's execution context
-    uthread_ctx_init(t1->uctx, t1->top_of_stack, func, arg);
+    // Error check for memory allocation
+    if (t1 -> top_of_stack == NULL) {
+        return -1;
+    }
+    // Initialize t1's execution context and check for errors
+    if (uthread_ctx_init(t1->uctx, t1->top_of_stack, func, arg) == -1) {
+        return -1;
+    }
     // Make t1 the next_thread and enqueue it into the thread queue
     next_thread = t1;
     queue_enqueue(thread_queue, t1);
@@ -93,13 +108,29 @@ int uthread_run(bool preempt, uthread_func_t func, void *arg) {
     preempt_disable();
     // Allocating space for the main_thread
     main_thread = (struct uthread_tcb *)malloc(sizeof(struct uthread_tcb));
+    // Error check for memory allocation
+    if (main_thread == NULL) {
+        return -1;
+    }
     // Allocate space for main_thread's thread context
     main_thread->uctx = (uthread_ctx_t *)malloc(sizeof(uthread_ctx_t));
+    // Error check for memory allocation
+    if (main_thread -> uctx == NULL) {
+        return -1;
+    }
     // Allocate the stack segment for main_thread
     main_thread->top_of_stack = uthread_ctx_alloc_stack();
+    // Error check for memory allocation
+    if (main_thread -> top_of_stack == NULL) {
+        return -1;
+    }
     // Creating and allocating space for thread_queue and exited_thread_queue
     thread_queue = queue_create();
     exited_thread_queue = queue_create();
+    // Error check for queue creation
+    if (thread_queue == NULL || exited_thread_queue == NULL) {
+        return -1;
+    }
     // Enable preemption as exit critical section
     preempt_enable();
     // Main_thread is the currently running thread
