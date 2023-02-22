@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-#include "context.c"
 #include "private.h"
 #include "queue.h"
 #include "uthread.h"
@@ -17,15 +16,17 @@ queue_t thread_queue;
     ceased from the running thread */
 queue_t exited_thread_queue;
 /* TCB of the current thread */
-struct uthread_tcb *current_thread;
+struct uthread_tcb* current_thread;
 /* TCB of the next thread */
-struct uthread_tcb *next_thread;
+struct uthread_tcb* next_thread;
 
 struct uthread_tcb
 {
     /* TODO Phase 2 */
-    uthread_ctx_t *uctx;
-    void *top_of_stack;
+    // /* keeps track of the whether the process
+    //     is running, blocked or ready*/
+    uthread_ctx_t* uctx;
+    void* top_of_stack;
 };
 
 struct uthread_tcb *uthread_current(void)
@@ -142,4 +143,3 @@ void uthread_unblock(struct uthread_tcb *uthread)
     enqueuing into the thread_queue*/
     queue_enqueue(thread_queue, uthread);
 }
-
