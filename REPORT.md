@@ -52,41 +52,38 @@ formatting of the `queue_tester_example.c`.
 ## Phase 2 - uthread API
 
 The uthread API in terms of idea, was a bit complicated in the beginning but
-going over the professors's context_fixed_schedule.c helped us get a head start.
+going over the professor's `context_fixed_schedule.c` gave us a head start.
 Office hours helped us clear our doubts and the wrong assumptions. We have 4 
-global variables:
-- `thread_queue`: the queue to hold all the threads
-- `exited_thread_queue`: the queue to hold the exited threads
-- `current_thread`: pointer to current thread
-- `next_thread`: pointer to the next thread
+global variables that assisted the functions: 
+- `queue_t thread_queue`: the queue to hold all the threads
+- `queue_t exited_thread_queue`: the queue to hold the exited threads
+- `struct uthread_tcb* current_thread`: pointer to current thread
+- `struct uthread_tcb* next_thread`: pointer to the next thread
 
-We had a TCB
-struct called uthread_tcb that holds the contents of a thread such as:
-
-- `the state` : keeps track of the whether the process is running, blocked or 
-ready to be executed
-- `*uctx`: Pointer to thread context to initialize
-- `*top_of_stack`: Address of stack to deallocate
+We had a struct called `uthread_tcb` that holds the contents of a thread such 
+as:
+- `uthread_ctx_t* uctx`: Pointer to thread context to initialize
+- `void* top_of_stack`: Address of stack to deallocate
 
 We call the function `uthread_run` first to run the thread. This function will 
 have the first TCB struct object, the `main_thread`. We declare it and we 
 allocate stack space, thread context space and create space for the struct 
-object itself. The main_thread is the running thread which is used to call the 
+object itself. The `main_thread` is the running thread which is used to call the 
 `uthread_create` function to create a new thread `t1` which becomes the next 
 thread whose execution context is initialized and is enqueued into the 
-`thread_queue`. Then with the main_thread as the currently running thread, we 
+`thread_queue`. Then with the `main_thread` as the currently running thread, we 
 call the `uthread_yield` function to yield for the threads in the thread_queue 
 to execute until the queue is empty.
 
 `uthread_yield` enqueues the currently running thread and pops the next thread 
 from the `thread_queue`to do context switching between the next thread and the 
-temp TCB object that has the current_thread's copy.
+temp TCB object that has the `current_thread`'s copy.
 
-`uthread_current` function returns the `current_thread`.
+`uthread_current` function simply returns the `current_thread`.
 
 `uthread_exit` stops the execution of the currently running thread when called. 
 The running thread is enqueued into the `exited_thread_queue` and the next 
-thread from the thread_queue is made to be the running thread. Then we do
+thread from the `thread_queue` is made to be the running thread. Then we do
 context switching between the running and the next threads.
 
 While doing the phase, we encountered a referencing error because of which we 
@@ -94,8 +91,9 @@ were stuck on this phase for quite some time but as soon as we figured it out,
 we were able to get it working completely.
 
 We tested our implementation of the uthread library out by running it against 
-uthread_hello.c and uthread_yield.c given by the professor which gave us the 
-right output.
+`uthread_hello.c` and `uthread_yield.c` given by the professor. We believe that 
+these test cases validate our implementation for the uthread, at least the
+components involved in phase 2.
 
 ## Phase 3 - semaphore API
 The semaphore API took us some time to understand. The implementation was much 
