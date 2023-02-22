@@ -191,7 +191,9 @@ previous action and previous timer that was there before preempt start was
 called. 
 
 Lastly, `disable` and `enable` are very straightforward where `disable` just 
-blocks the `SIGVTALRM` signal, while `enable` just unblocks the signal. 
+blocks the `SIGVTALRM` signal, while `enable` just unblocks the signal. These 
+functions are used to maintain atomicity of the execution and make sure one 
+thread doesn't interfere with the execution of another thread.
 
 For `test_preempt.c`, we had a simple tester which runs two threads concurrently
 where one of them is an infinite thread and the other is a thread that kills 
