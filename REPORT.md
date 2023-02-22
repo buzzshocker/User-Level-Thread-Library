@@ -7,14 +7,13 @@ testers for the code implementations for the later files alongside the starter
 code. We started work on the makefile for libuthread. It is in the format as 
 described in the project 2 discussion slides. We keep building upon this from 
 phase to phase. This makefile would create the static library (libuthread.a) 
-along with a clean function to remove all the executable files once we are done.
+along with a clean command to remove all the executable files once we are done.
 
 ## Phase 1 - queue API
-The first phase of the project calls back to data structures and algorithms with
-a queue implementation. It is a fairly simple data structure that works on a 
-First In First Out (FIFO) basis. Our implementation has two structs - one struct
+The first phase of the project calls back to data structures with a queue 
+implementation. It is a fairly simple data structure that works on a First In 
+First Out (FIFO) basis. Our implementation has two structs - one struct
 complementing the other. The first struct `struct node` has two members -
-
 - `void* data`: Data (of any type) that is being inserted in the 
 queue
 - `struct node* next`: Pointer to the next node
@@ -22,15 +21,13 @@ queue
 From this struct, it is apparent that it is a linked list based implementation 
 of the queue. We went with this since it would facilitate our operations on the 
 queue well, with the required time complexities for some functions as per
-the design document. To make the code cleaner, we added `typedef struct node* q_
-node`. This would make it easier for us to use a pointer to `struct node`.
-We also have a helper function `q_node new_node` which helps us to create a new 
-node that can be inserted in the linked list - acting as a new item of the 
-queue.
+the design document. We added `typedef struct node* q_node`. This would make it
+easier for us to use a pointer to `struct node`. We also have a helper function 
+`q_node new_node` which helps us to create a new node that can be inserted in
+the linked list - acting as a new item of the queue.
 
 The second struct was the struct present in the header file `struct queue`. This
-struct had three members - 
-
+struct had three members -
 - `q_node front`: Pointer to the front of the queue
 - `q_node rear`: Pointer to the read of the queue
 - `size_t count`: Size of the queue
@@ -107,8 +104,7 @@ we `queue_dequeue` the first ready thread from the `thread_queue`. That dequeued
 thread will now become the current thread. Before that, we store the current 
 thread so that we can context switch from that `current_thread` to the earlier
 dequeued thread. This blocks the execution of that thread and allows the next 
-thread to run. 
-
+thread to run.
 - `uthread_unblock` simply allows the thread that was previously blocked to be
 put into the `thread_queue` again, allowing it to run again based on its
 position in the queue.
@@ -121,8 +117,7 @@ functions.
 
 Our semaphore API has a struct that helps in the implementation of all the 
 functions. We use the struct, appropriately titled,  `struct semaphore` to hold 
-our member variables - 
-
+our member variables -
 - `size_t count`: Number of threads that can be run at the same time
 - `queue_t blocked_queue`: Holds the threads that are currently blocked
 
