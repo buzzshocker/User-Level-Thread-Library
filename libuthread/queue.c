@@ -36,11 +36,15 @@ struct queue {
 
 queue_t queue_create(void) {
     // Assign the space to the queue
-    queue_t q = (struct queue*) malloc(sizeof(struct queue));
+    queue_t queue = (struct queue*) malloc(sizeof(struct queue));
+    // Error check for malloc
+    if (queue == NULL) {
+        return NULL;
+    }
     // Initialise the front and the rear of the queue
-    q -> front = NULL;
-    q -> rear = NULL;
-    return q;
+    queue -> front = NULL;
+    queue -> rear = NULL;
+    return queue;
 }
 
 int queue_destroy(queue_t queue) {
