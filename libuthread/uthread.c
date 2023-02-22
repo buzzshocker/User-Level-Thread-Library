@@ -20,39 +20,31 @@ struct uthread_tcb* current_thread;
 /* TCB of the next thread */
 struct uthread_tcb* next_thread;
 
-struct uthread_tcb
-{
-    /* TODO Phase 2 */
-    // /* keeps track of the whether the process
-    //     is running, blocked or ready*/
+struct uthread_tcb {
+    /* keeps track of the whether the process is running, blocked or ready*/
     uthread_ctx_t* uctx;
     void* top_of_stack;
 };
 
-struct uthread_tcb *uthread_current(void)
-{
-    /* TODO Phase 2/3 */
+struct uthread_tcb *uthread_current(void) {
     return current_thread;
 }
 
-void uthread_yield(void)
-{
-    /* TODO Phase 2 */
+void uthread_yield(void) {
     /* push the currently running thread into the queue */
     queue_enqueue(thread_queue, current_thread);
     /* then pop the next thread from the queue for context switching */
     queue_dequeue(thread_queue, (void **)&next_thread);
     /* creating a temporary TCB that has a copy of the current thread */
     struct uthread_tcb *temp = current_thread;
-    /* changing the current thread to be the next thread for the subsequent processes */
+    /* changing the current thread to be the next thread for the subsequent
+     * processes */
     current_thread = next_thread;
     /* context switch between currently running thread and the next thread */
     uthread_ctx_switch(temp->uctx, next_thread->uctx);
 }
 
-void uthread_exit(void)
-{
-    /* TODO Phase 2 */
+void uthread_exit(void) {
     /* pop the next thread from the thread_queue */
     queue_dequeue(thread_queue, (void **)&next_thread);
     /* creating a temporary TCB that has a copy of the
@@ -68,12 +60,12 @@ void uthread_exit(void)
     uthread_ctx_switch(temp->uctx, current_thread->uctx);
 }
 
-int uthread_create(uthread_func_t func, void *arg)
-{
+int uthread_create(uthread_func_t func, void *arg) {
     /* disable preemption as we enter critical section*/
     preempt_disable();
     /* create a new thread t1 and allocate space */
-    struct uthread_tcb *t1 = (struct uthread_tcb *)malloc(sizeof(struct uthread_tcb));
+    struct uthread_tcb *t1 = (struct uthread_tcb *)malloc
+            (sizeof(struct uthread_tcb));
     /* allocate space for t1's thread context */
     t1->uctx = (uthread_ctx_t *)malloc(sizeof(uthread_ctx_t));
     /* allocate the stack segment for t1 */
@@ -89,9 +81,7 @@ int uthread_create(uthread_func_t func, void *arg)
     return 0;
 }
 
-int uthread_run(bool preempt, uthread_func_t func, void *arg)
-{
-    /* TODO Phase 2 */
+int uthread_run(bool preempt, uthread_func_t func, void *arg) {
     preempt_start(preempt);
     /* declaring the first TCB obj -> main_thread */
     struct uthread_tcb *main_thread;
@@ -110,25 +100,20 @@ int uthread_run(bool preempt, uthread_func_t func, void *arg)
     /* main_thread is the currently running thread */
     current_thread = main_thread;
     uthread_create(func, arg);
-    while (1)
-    {
+    while (1) {
         uthread_yield();
         /* Breaking out of the loop when the thread_queue is empty */
-        if (queue_length(thread_queue) == 0)
-        {
+        if (queue_length(thread_queue) == 0) {
             break;
         }
     }
-    if (preempt == true)
-    {
+    if (preempt == true) {
         preempt_stop();
     }
     return 0;
 }
 
-void uthread_block(void)
-{
-    /* TODO Phase 3 */
+void uthread_block(void) {
     struct uthread_tcb *dq_thread;
     /* dequeue the first ready thread from thread_queue */
     queue_dequeue(thread_queue, (void **)&dq_thread);
@@ -141,10 +126,8 @@ void uthread_block(void)
     uthread_ctx_switch(curr_thread->uctx, dq_thread->uctx);
 }
 
-void uthread_unblock(struct uthread_tcb *uthread)
-{
-    /* TODO Phase 3 */
+void uthread_unblock(struct uthread_tcb *uthread) {
     /* unblocking the thread that was previously blocked by
-    enqueuing into the thread_queue*/
+     * enqueuing into the thread_queue*/
     queue_enqueue(thread_queue, uthread);
 }
