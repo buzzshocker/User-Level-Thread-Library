@@ -24,9 +24,6 @@ struct uthread_tcb *next_thread;
 struct uthread_tcb
 {
     /* TODO Phase 2 */
-    // /* keeps track of the whether the process
-    //     is running, blocked or ready*/
-    // int state;
     uthread_ctx_t *uctx;
     void *top_of_stack;
 };
