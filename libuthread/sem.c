@@ -7,7 +7,6 @@
 
 // Struct for semaphore
 struct semaphore {
-	/* TODO Phase 3 */
     // Queue to hold the threads that have been blocked
     queue_t blocked_queue;
     // Count member to allocate the semaphore resources
@@ -15,7 +14,6 @@ struct semaphore {
 };
 
 sem_t sem_create(size_t count) {
-	/* TODO Phase 3 */
     // Allocate space for the struct itself
     sem_t sem = (sem_t) malloc(sizeof(struct semaphore));
     // Error checks
@@ -31,9 +29,7 @@ sem_t sem_create(size_t count) {
     return sem;
 }
 
-int sem_destroy(sem_t sem)
-{
-	/* TODO Phase 3 */
+int sem_destroy(sem_t sem) {
     // Error checks
     if (sem == NULL || queue_length(sem -> blocked_queue) != 0) {
         return -1;
@@ -48,37 +44,38 @@ int sem_destroy(sem_t sem)
     return 0;
 }
 
-int sem_down(sem_t sem)
-{
-	/* TODO Phase 3 */
+int sem_down(sem_t sem) {
     // Error checks
     if (sem == NULL) {
         return -1;
     }
+    // Enable preemption
+    preempt_disable();
     // Decrement resources if they are still available
     if (sem -> count > 0) {
         sem -> count--;
     } else {
-        // Block the current thread from running
-        uthread_block();
         // If no resources available
         struct uthread_tcb* eq_thread = uthread_current();
         // Add the current thread to the blocked queue
         queue_enqueue(sem -> blocked_queue, eq_thread);
-
+        // Block the current thread from running
+        uthread_block();
     }
+    // Disable preemption
+    preempt_enable();
     return 0;
 }
 
-int sem_up(sem_t sem)
-{
-	/* TODO Phase 3 */
+int sem_up(sem_t sem) {
     // Error checks
     if (sem == NULL) {
         return -1;
     }
     // Variable to hold the node to be dequeued
     struct uthread_tcb* dq_node;
+    // Enable preemption
+    preempt_disable();
     // If there is something in the blocked queue and resources are available
     if (queue_length(sem -> blocked_queue) != 0) {
         // Dequeue the thread from the blocked queue
@@ -90,6 +87,8 @@ int sem_up(sem_t sem)
         // threads to use in the future
         sem -> count++;
     }
+    // Disable preemption
+    preempt_enable();
     return 0;
 }
 
